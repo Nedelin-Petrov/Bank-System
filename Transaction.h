@@ -1,26 +1,28 @@
 #pragma once
 enum class TransactionType {
     DEPOSIT,
-    WITHDRAWAL,
-    TRANSFERIN,
-    TRANSFEROUT
+    WITHDRAW,
+    TRANSFER_IN,
+    TRANSFER_OUT,
+    NONE
 };
 class Transaction {
     private:
-        int TransactionID;
+        int transactionID;
         TransactionType type;
-        long amount;
-        int otherTransactionID;
+        long long amount;
+        int otherAccountID;
+        void validate() const;
     public:
         Transaction();
-        Transaction(int id, TransactionType type, int amount, int otherTransactionID);
+        Transaction(int id, TransactionType type, long long amount, int otherAccountID);
         ~Transaction();
-        int getTransactionID();
-        TransactionType getType();
-        long getAmount();
-        int getOtherTransactionID();
+        int getTransactionID() const;
+        TransactionType getType() const;
+        long long getAmount() const;
+        int getOtherAccountID() const;
         void setTransactionID(int id);
         void setTransactionType(TransactionType type);
-        void setAmount(long amount);
-        void setOtherTransactionID(int otherTransactionID);
+        void setAmount(long long amount);
+        void setOtherAccountID(int otherAccountID);
 };
