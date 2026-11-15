@@ -11,3 +11,10 @@ cmake-build-*/
 # Object files
 *.o
 *.obj
+# Други build папки и изход
+build/
+out/
+*.out
+*.a
+*.pdb
+*.ilk
