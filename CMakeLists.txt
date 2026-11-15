@@ -8,4 +8,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_executable(BankSystem main.cpp
         Customer.cpp
-        Customer.h)
+        Customer.h
+        Transaction.cpp
+        Transaction.h)
