@@ -25,8 +25,8 @@ int Transaction::getOtherAccountID() const {
     return otherAccountID;
 }
 void Transaction::setTransactionID(int id) {
-    if (id < 0) {
-        throw invalid_argument("ID shouldn't be less than 0.");
+    if (id <= 0) {
+        throw invalid_argument("ID shouldn't be less than or equal to 0.");
     }
     else {
         this->transactionID = id;
@@ -50,7 +50,7 @@ void Transaction::setAmount(long long amount) {
 }
 void Transaction::setOtherAccountID(int otherAccountID) {
     if (otherAccountID < 0) {
-        throw invalid_argument("ID shouldn't be less than 0.");
+        throw invalid_argument("OtherAccountID cannot be negative.");
     }
     else {
         this->otherAccountID = otherAccountID;
