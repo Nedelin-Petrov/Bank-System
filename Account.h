@@ -8,10 +8,13 @@ class Account {
     int customerID;
     long long balance;
     std::vector<Transaction> transactionHistory;
+    void applyTransaction(int transactionID, TransactionType type, long long amount, int otherAccountID);
     public:
     Account();
     Account(int accountID, int customerID, long long balance,const std::vector<Transaction>& transactionHistory);
     ~Account();
+    void deposit(long long amount, int transactionID);
+    void withdraw(long long amount, int transactionID);
     int getAccountID() const;
     int getCustomerID() const;
     long long getBalance() const;

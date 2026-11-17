@@ -1,5 +1,6 @@
 #include "Transaction.h"
 #include <stdexcept>
+#include <string>
 using namespace std;
 
 Transaction::Transaction() : transactionID(0), type(TransactionType::NONE) ,amount(0), otherAccountID(0) {}

@@ -2,10 +2,10 @@
 #include "Transaction.h"
 #include <vector>
 #include <stdexcept>
+#include <climits>
 using namespace std;
 
 Account::Account() : accountID(0),customerID(0),balance(0) {
-
 }
 Account::Account(int accountID, int customerID, long long balance,const vector<Transaction>& transactionHistory) {
     setAccountID(accountID);
@@ -62,3 +62,44 @@ void Account::setTransactionHistory(const std::vector<Transaction>& transactionH
     this->transactionHistory = transactionHistory;
 }
 
+void Account::applyTransaction(int transactionID, TransactionType type, long long amount, int otherAccountID) {
+    if (amount <= 0) {
+        throw runtime_error("Amount cannot be less than or equal to 0.");
+    }
+    else if (type == TransactionType::NONE) {
+        throw invalid_argument("Transaction type cannot be NONE.");
+    }
+    else if (type == TransactionType::WITHDRAW or type == TransactionType::TRANSFER_OUT) {
+        if (amount > balance) {
+            throw runtime_error("Amount cannot be greater than the balance.");
+        }
+    }
+    else if (type == TransactionType::DEPOSIT or type == TransactionType::TRANSFER_IN) {
+        if (balance > LLONG_MAX - amount ) {
+            throw overflow_error("The amount will be greater than the balance limit.");
+        }
+    }
+    Transaction t = Transaction(transactionID,type, amount, otherAccountID);
+    long long newBalance = this->balance;
+    switch (type) {
+        case TransactionType::WITHDRAW:
+        case TransactionType::TRANSFER_OUT:
+            newBalance = this->balance - amount;
+            break;
+        case TransactionType::DEPOSIT:
+        case TransactionType::TRANSFER_IN:
+            newBalance = this->balance + amount;
+            break;
+        default:
+            throw invalid_argument("Invalid transaction type.");
+            break;
+    }
+    transactionHistory.push_back(t);
+    balance = newBalance;
+}
+void Account::deposit(long long amount, int transactionID) {
+    applyTransaction(transactionID, TransactionType::DEPOSIT, amount, 0);
+}
+void Account::withdraw(long long amount, int transactionID) {
+    applyTransaction(transactionID, TransactionType::WITHDRAW, amount, 0);
+}
