@@ -64,7 +64,7 @@ void Account::setTransactionHistory(const std::vector<Transaction>& transactionH
 
 void Account::applyTransaction(int transactionID, TransactionType type, long long amount, int otherAccountID) {
     if (amount <= 0) {
-        throw runtime_error("Amount cannot be less than or equal to 0.");
+        throw invalid_argument("Amount cannot be less than or equal to 0.");
     }
     else if (type == TransactionType::NONE) {
         throw invalid_argument("Transaction type cannot be NONE.");
@@ -78,6 +78,9 @@ void Account::applyTransaction(int transactionID, TransactionType type, long lon
         if (balance > LLONG_MAX - amount ) {
             throw overflow_error("The amount will be greater than the balance limit.");
         }
+    }
+    else if ((type == TransactionType::TRANSFER_IN || type == TransactionType::TRANSFER_OUT) and (this->accountID == otherAccountID)) {
+        throw invalid_argument("Cannot do a transfer to yourself.");
     }
     Transaction t = Transaction(transactionID,type, amount, otherAccountID);
     long long newBalance = this->balance;
@@ -102,4 +105,11 @@ void Account::deposit(long long amount, int transactionID) {
 }
 void Account::withdraw(long long amount, int transactionID) {
     applyTransaction(transactionID, TransactionType::WITHDRAW, amount, 0);
+}
+
+void Account::sendTransfer(long long amount, int transactionID, int toAccountID) {
+    applyTransaction(transactionID, TransactionType::TRANSFER_OUT, amount, toAccountID);
+}
+void Account::receiveTransfer(long long amount, int transactionID, int fromAccountID) {
+    applyTransaction(transactionID, TransactionType::TRANSFER_IN, amount, fromAccountID);
 }

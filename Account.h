@@ -15,6 +15,8 @@ class Account {
     ~Account();
     void deposit(long long amount, int transactionID);
     void withdraw(long long amount, int transactionID);
+    void sendTransfer(long long amount, int transactionID, int toAccountID);
+    void receiveTransfer(long long amount, int transactionID, int fromAccountID);
     int getAccountID() const;
     int getCustomerID() const;
     long long getBalance() const;
