@@ -50,7 +50,7 @@ void Account::setBalance(long long balance) {
         this->balance = balance;
     }
 }
-void Account::setTransactionHistory(const std::vector<Transaction>& transactionHistory) {
+void Account::setTransactionHistory(const vector<Transaction>& transactionHistory) {
     for (const Transaction& t : transactionHistory) {
         if (t.getType() == TransactionType::NONE) {
             throw invalid_argument("Transaction type shouldn't be NONE.");

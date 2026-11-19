@@ -27,8 +27,8 @@ bool Customer::onlyDigits(const std::string& s) {
     return true;
 }
 void Customer::setID(int id) {
-    if (id < 0) {
-        throw invalid_argument("ID shouldn't be less than 0.");
+    if (id <= 0) {
+        throw invalid_argument("ID shouldn't be less than or equal to 0.");
     }
     else {
         this->id = id;

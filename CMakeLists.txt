@@ -12,4 +12,6 @@ add_executable(BankSystem main.cpp
         Transaction.cpp
         Transaction.h
         Account.cpp
-        Account.h)
+        Account.h
+        BankSystem.cpp
+        BankSystem.h)
