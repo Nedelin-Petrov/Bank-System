@@ -17,6 +17,9 @@ class BankSystem {
     Account* findAccount(int id);
     int takeTransactionId();
     void checkOwnership(const Account& account, int customerID) const;
+    int maxCustomerID() const;
+    int maxAccountID() const;
+    int maxTransactionID() const;
     public:
     BankSystem(const std::vector<Customer>& customers,const std::vector<Account>& accounts, int nextCustomerID, int nextAccountID, int nextTransactionID);
     BankSystem(const std::vector<Customer>& customers,const std::vector<Account>& accounts, int nextCustomerID, int nextAccountID, int nextTransactionID,const std::string& filePath);

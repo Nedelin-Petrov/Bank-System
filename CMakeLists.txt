@@ -15,3 +15,7 @@ add_executable(BankSystem main.cpp
         Account.h
         BankSystem.cpp
         BankSystem.h)
+
+target_compile_options(BankSystem PRIVATE
+        $<$<CXX_COMPILER_ID:MSVC>:/W4>
+        $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall -Wextra>)

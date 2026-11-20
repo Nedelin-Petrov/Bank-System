@@ -69,17 +69,17 @@ void Account::applyTransaction(int transactionID, TransactionType type, long lon
     else if (type == TransactionType::NONE) {
         throw invalid_argument("Transaction type cannot be NONE.");
     }
-    else if (type == TransactionType::WITHDRAW or type == TransactionType::TRANSFER_OUT) {
+    else if (type == TransactionType::WITHDRAW || type == TransactionType::TRANSFER_OUT) {
         if (amount > balance) {
             throw runtime_error("Amount cannot be greater than the balance.");
         }
     }
-    else if (type == TransactionType::DEPOSIT or type == TransactionType::TRANSFER_IN) {
+    else if (type == TransactionType::DEPOSIT || type == TransactionType::TRANSFER_IN) {
         if (balance > LLONG_MAX - amount ) {
             throw overflow_error("The amount will be greater than the balance limit.");
         }
     }
-    else if ((type == TransactionType::TRANSFER_IN || type == TransactionType::TRANSFER_OUT) and (this->accountID == otherAccountID)) {
+    if ((type == TransactionType::TRANSFER_IN || type == TransactionType::TRANSFER_OUT) && (this->accountID == otherAccountID)) {
         throw invalid_argument("Cannot do a transfer to yourself.");
     }
     Transaction t = Transaction(transactionID,type, amount, otherAccountID);
@@ -93,9 +93,8 @@ void Account::applyTransaction(int transactionID, TransactionType type, long lon
         case TransactionType::TRANSFER_IN:
             newBalance = this->balance + amount;
             break;
-        default:
-            throw invalid_argument("Invalid transaction type.");
-            break;
+        case TransactionType::NONE:
+            throw invalid_argument("Transaction type cannot be NONE.");
     }
     transactionHistory.push_back(t);
     balance = newBalance;
