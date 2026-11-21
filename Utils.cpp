@@ -3,6 +3,7 @@
 #include <string>
 #include <stdexcept>
 #include <cstdlib>
+#include <climits>
 using namespace std;
 
 string Utils::formatAmount(long long amount) {
@@ -36,8 +37,51 @@ long long Utils::parseAmount(const std::string& amount) {
         euroPart = amount.substr(0, dotPos);
         centPart = amount.substr(dotPos + 1);
     }
-    if (euroPart.empty() == true) {}
-
+    if (euroPart.empty() == true) {
+        throw std::invalid_argument("Amount is empty");
+    }
+    for (char c : euroPart) {
+        if ( c < '0' || c > '9') {
+            throw std::invalid_argument("Amount can only have numbers in it!");
+        }
+    }
+    if (dotPos != std::string::npos) {
+        if (centPart.empty() == true) {
+            throw std::invalid_argument("Amount is empty");
+        }
+        if (centPart.size() > 2) {
+            throw std::invalid_argument("Invalid amount size");
+        }
+        for (char c : centPart) {
+            if (c < '0' || c > '9') {
+                throw std::invalid_argument("Amount can only have numbers in it!");
+            }
+        }
+    }
+    long long euros = 0;
+    long long cents = 0;
+    for (char c : euroPart) {
+        int d = c - '0';
+        if (euros > (LLONG_MAX - d) / 10) {
+            throw overflow_error("Cant go over LLONG_MAX");
+        }
+        euros = euros * 10 + d;
+    }
+    for (char c : centPart) {
+        int d = c - '0';
+        if (cents > (LLONG_MAX - d) / 10) {
+            throw overflow_error("Cant go over LLONG_MAX");
+        }
+        cents = cents * 10 + d;
+    }
+    if (centPart.size() == 1) {
+        cents *= 10;
+    }
+    if (euros > (LLONG_MAX - cents) / 100) {
+        throw overflow_error("Cant go over LLONG_MAX");
+    }
+    long long result = euros*100 + cents;
+    return result;
 }
 string Utils::toString(TransactionType type) {
     switch (type) {

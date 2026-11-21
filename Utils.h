@@ -3,9 +3,6 @@
 #include "Transaction.h"
 
 class Utils {
-    private:
-        Utils();
-        ~Utils();
     public:
         static std::string formatAmount(long long amount);
         static long long parseAmount(const std::string& amount);
