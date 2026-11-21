@@ -1,5 +1,4 @@
 #include "BankSystem.h"
-
 #include <set>
 #include <vector>
 #include <string>
@@ -90,6 +89,8 @@ void BankSystem::setAccounts(const vector<Account>& accounts) {
                 case TransactionType::TRANSFER_IN:
                     cmpBalance += t.getAmount();
                     break;
+                case TransactionType::NONE:
+                    throw invalid_argument("Transaction type cannot be NONE.");
             }
         }
         if (cmpBalance != a.getBalance()) {
@@ -168,7 +169,7 @@ Account* BankSystem::findAccount(int accountID) {
             return &a;
         }
     }
-    throw invalid_argument("Account ID does not exist.");
+    throw runtime_error("This account doesnt exist!");
 }
 int BankSystem::login(int customerID, const std::string& PIN) {
     for (const Customer& c : this->customers) {
@@ -214,4 +215,46 @@ vector<int> BankSystem::getAccountIds(int customerId) const {
     }
     return resultsVector;
 }
-
+long long BankSystem::getBalance(int customerID, int accountID) {
+    const Account& a = *findAccount(accountID);
+    checkOwnership(a, customerID);
+    long long result = a.getBalance();
+    return result;
+}
+const vector<Transaction> &BankSystem::getHistory(int customerId, int accountId) {
+    const Account& a = *findAccount(accountId);
+    checkOwnership(a, customerId);
+    const vector<Transaction>& resultHistory = a.getTransactionHistory();
+    return resultHistory;
+}
+void BankSystem::deposit(int customerId, int accountId, long long amount) {
+    Account& a = *findAccount(accountId);
+    checkOwnership(a, customerId);
+    a.deposit(amount,takeTransactionId());
+}
+void BankSystem::withdraw(int customerId, int accountId, long long amount) {
+    Account& a = *findAccount(accountId);
+    checkOwnership(a, customerId);
+    a.withdraw(amount,takeTransactionId());
+}
+void BankSystem::transfer(int customerId, int fromAccountId, int toAccountId, long long amount) {
+    if (fromAccountId != toAccountId) {
+        Account& aFrom = *findAccount(fromAccountId);
+        checkOwnership(aFrom, customerId);
+        Account& aTo = *findAccount(toAccountId);
+        Account backupFrom= aFrom;
+        Account backupTo = aTo;
+        try {
+            aFrom.sendTransfer(amount,takeTransactionId(),toAccountId);
+            aTo.receiveTransfer(amount,takeTransactionId(),fromAccountId);
+        }
+        catch (...) {
+            aFrom = backupFrom;
+            aTo = backupTo;
+            throw;
+        }
+    }
+    else {
+        throw runtime_error("Can't transfer to self");
+    }
+}
