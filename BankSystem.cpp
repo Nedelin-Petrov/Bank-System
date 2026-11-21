@@ -98,7 +98,6 @@ void BankSystem::setAccounts(const vector<Account>& accounts) {
     }
     this->accounts = accounts;
 }
-
 int BankSystem::maxCustomerID() const {
     int maxCustomerID = 0;
     for (const Customer& c : this->customers) {
@@ -135,7 +134,6 @@ void BankSystem::setNextCustomerID(int customerID) {
     }
     this->nextCustomerID = customerID;
 }
-
 void BankSystem::setNextAccountID(int accountID) {
     int maxID = maxAccountID();
     if (accountID <= maxID) {
@@ -164,6 +162,14 @@ Customer* BankSystem::findCustomer(int customerID) {
     }
     return nullptr;
 }
+Account* BankSystem::findAccount(int accountID) {
+    for (Account& a : this->accounts) {
+        if (a.getAccountID() == accountID) {
+            return &a;
+        }
+    }
+    throw invalid_argument("Account ID does not exist.");
+}
 int BankSystem::login(int customerID, const std::string& PIN) {
     for (const Customer& c : this->customers) {
         if ((c.getID() == customerID) && (c.getPIN() == PIN)) {
@@ -178,5 +184,34 @@ int BankSystem::registerCustomer(const std::string &name, const std::string &PIN
     int resultID = c.getID();
     nextCustomerID++;
     return resultID;
+}
+int BankSystem::takeTransactionId() {
+    int resultID = this->nextTransactionID;
+    nextTransactionID++;
+    return resultID;
+}
+void BankSystem::checkOwnership(const Account &account, int customerID) const {
+    if (account.getCustomerID() != customerID) {
+        throw runtime_error("This account doesnt exist!");
+    }
+}
+int BankSystem::openAccount(int customerID) {
+    if (findCustomer(customerID) == nullptr) {
+        throw runtime_error("Customer does not exist.");
+    }
+    Account a = Account(getNextAccountID(), customerID, 0, {});
+    accounts.push_back(a);
+    int resultID = a.getAccountID();
+    nextAccountID++;
+    return resultID;
+}
+vector<int> BankSystem::getAccountIds(int customerId) const {
+    vector<int> resultsVector;
+    for (const Account& a : this->accounts) {
+        if (a.getCustomerID() == customerId) {
+            resultsVector.push_back(a.getAccountID());
+        }
+    }
+    return resultsVector;
 }
 

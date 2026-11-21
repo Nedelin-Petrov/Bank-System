@@ -38,8 +38,8 @@ class BankSystem {
     void setFilePath(const std::string& filePath);
     int registerCustomer(const std::string& name, const std::string& pin);
     int login(int customerId, const std::string& pin);
-    // int openAccount(int customerId);
-    // std::vector<int> getAccountIds(int customerId) const;
+    int openAccount(int customerId);
+    std::vector<int> getAccountIds(int customerId) const;
     // long long getBalance(int customerId, int accountId);
     // void deposit(int customerId, int accountId, long long amount);
     // void withdraw(int customerId, int accountId, long long amount);
