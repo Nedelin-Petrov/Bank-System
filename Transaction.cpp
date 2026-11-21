@@ -1,6 +1,8 @@
 #include "Transaction.h"
+#include "Utils.h"
 #include <stdexcept>
 #include <string>
+#include <ostream>
 using namespace std;
 
 Transaction::Transaction() : transactionID(0), type(TransactionType::NONE) ,amount(0), otherAccountID(0) {}
@@ -74,4 +76,16 @@ void Transaction::validate() const {
         case TransactionType::NONE:
             throw invalid_argument("Transaction type cannot be NONE.");
     }
+}
+std::ostream& operator<<(std::ostream& os, const Transaction& t) {
+    os <<  "#" << t.getTransactionID() <<"  " << Utils::toString(t.getType()) << "  "<< Utils::formatAmount(t.getAmount());
+    if (t.getOtherAccountID() != 0) {
+        if (t.getType() == TransactionType::TRANSFER_IN) {
+            os << "  <- account " <<t.getOtherAccountID();
+        }
+        else {
+           os << "  -> account " <<t.getOtherAccountID();
+       }
+    }
+    return os;
 }

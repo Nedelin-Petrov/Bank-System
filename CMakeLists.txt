@@ -16,7 +16,8 @@ add_executable(BankSystem main.cpp
         BankSystem.cpp
         BankSystem.h
         Utils.cpp
-        Utils.h)
+        Utils.h
+)
 
 target_compile_options(BankSystem PRIVATE
         $<$<CXX_COMPILER_ID:MSVC>:/W4>

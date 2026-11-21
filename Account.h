@@ -26,3 +26,4 @@ class Account {
     void setBalance(long long balance);
     void setTransactionHistory(const std::vector<Transaction>& transactionHistory);
 };
+std::ostream& operator<<(std::ostream& os, const Account& a);

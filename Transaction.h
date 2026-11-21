@@ -1,4 +1,5 @@
 #pragma once
+#include <ostream>
 enum class TransactionType {
     DEPOSIT,
     WITHDRAW,
@@ -26,3 +27,4 @@ class Transaction {
         void setAmount(long long amount);
         void setOtherAccountID(int otherAccountID);
 };
+std::ostream& operator<<(std::ostream& os, const Transaction& t);

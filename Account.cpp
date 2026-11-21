@@ -1,5 +1,6 @@
 #include "Account.h"
 #include "Transaction.h"
+#include "Utils.h"
 #include <vector>
 #include <stdexcept>
 #include <climits>
@@ -112,3 +113,24 @@ void Account::sendTransfer(long long amount, int transactionID, int toAccountID)
 void Account::receiveTransfer(long long amount, int transactionID, int fromAccountID) {
     applyTransaction(transactionID, TransactionType::TRANSFER_IN, amount, fromAccountID);
 }
+std::ostream& operator<<(std::ostream& os, const Account& a) {
+    os << "Account #" << a.getAccountID() << " (customer " << a.getCustomerID() <<")\n" << "Balance: " << Utils::formatAmount(a.getBalance()) << "\n" <<"Transactions:\n";
+    for (const Transaction& t : a.getTransactionHistory()) {
+        os << " " << t << "\n";
+    }
+    return os;
+}
+
+
+// std::ostream& operator<<(std::ostream& os, const Transaction& t) {
+//     os <<  "#" << t.getTransactionID() <<"  " << Utils::toString(t.getType()) << "  "<< Utils::formatAmount(t.getAmount());
+//     if (t.getOtherAccountID() != 0) {
+//         if (t.getType() == TransactionType::TRANSFER_IN) {
+//             os << "  <- account " <<t.getOtherAccountID();
+//         }
+//         else {
+//             os << "  -> account " <<t.getOtherAccountID();
+//         }
+//     }
+//     return os;
+// }
