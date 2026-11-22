@@ -2,11 +2,15 @@
 #include <set>
 #include <vector>
 #include <string>
+#include <stdexcept>
+#include <fstream>
+#include <sstream>
+#include <filesystem>
+#include <map>
 #include "Transaction.h"
 #include "Customer.h"
 #include "Account.h"
-#include <set>
-#include <stdexcept>
+#include "Utils.h"
 using namespace std;
 
 BankSystem::BankSystem(const vector<Customer>& customers,const vector<Account>& accounts, int nextCustomerID, int nextAccountID, int nextTransactionID) : nextCustomerID(0), nextAccountID(0), nextTransactionID(0) {
@@ -258,3 +262,43 @@ void BankSystem::transfer(int customerId, int fromAccountId, int toAccountId, lo
         throw runtime_error("Can't transfer to self");
     }
 }
+
+void BankSystem::save() const {
+    ofstream out(filePath + ".tmp");
+    if (!out.is_open()) {
+        throw runtime_error("Error opening file for saving.");
+    }
+    out << "COUNTERS " << nextCustomerID << " " << nextAccountID << " " << nextTransactionID << "\n";
+    for (const Customer& c : customers) {
+         out << "CUSTOMER " << c.getID() << " " << c.getPIN() << " " << c.getName() << "\n";
+    }
+    for (const Account& a : accounts) {
+        out << "ACCOUNT " << a.getAccountID() << " " << a.getCustomerID() << " " << a.getBalance() << "\n";
+    }
+    for (const Account& a : accounts) {
+        for (const Transaction& t : a.getTransactionHistory()) {
+            out << "TRANSACTION " << a.getAccountID() << " " << t.getTransactionID() << " " << Utils::toString(t.getType()) << " " << t.getAmount() << " " << t.getOtherAccountID() << "\n";
+        }
+    }
+    out.close();
+    if (out.fail()) {
+        filesystem::remove(filePath + ".tmp");
+        throw runtime_error("Error writing to file.");
+    }
+    filesystem::rename(filePath + ".tmp", filePath);
+}
+
+// out.close();
+// COUNTERS nextCustomerID nextAccountID nextTransactionID
+// CUSTOMER id pin име-до-края-на-реда
+// ACCOUNT accountID customerID balance
+// TRANSACTION accountID transactionID ТИП amount otherAccountID
+// COUNTERS 3 3 5
+// CUSTOMER 1 1234 Ivan Petrov
+// CUSTOMER 2 4321 Maria
+// ACCOUNT 1 1 5000
+// ACCOUNT 2 2 3000
+// TRANSACTION 1 1 DEPOSIT 10000 0
+// TRANSACTION 1 2 WITHDRAW 2000 0
+// TRANSACTION 1 3 TRANSFER_OUT 3000 2
+// TRANSACTION 2 4 TRANSFER_IN 3000 1

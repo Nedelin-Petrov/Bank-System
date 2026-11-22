@@ -45,8 +45,8 @@ class BankSystem {
     void withdraw(int customerId, int accountId, long long amount);
     void transfer(int customerId, int fromAccountId, int toAccountId, long long amount);
     const std::vector<Transaction>& getHistory(int customerId, int accountId);
-    // void save() const;
-    // void load();
+    void save() const;
+    void load();
 
     //note трябва да направиш и меню и tostring но май да не е в banksystem
     //Регистрация: менюто чете име и PIN → registerCustomer взема ID от nextCustomerId, създава Customer (конструкторът валидира и може да хвърли), добавя във вектора, увеличава брояча. Ред: първо създаваш обекта, чак после увеличаваш брояча, иначе при хвърляне губиш номер.
