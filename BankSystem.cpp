@@ -287,8 +287,63 @@ void BankSystem::save() const {
     }
     filesystem::rename(filePath + ".tmp", filePath);
 }
+void BankSystem::load() {
+    if (!filesystem::exists(filePath)) {
+        return;
+    }
+    vector<Customer> loadedCustomers;
+    int nextCustomerID = 0;
+    int nextAccountID = 0;
+    int nextTransactionID = 0;
+    bool counterExists = false;
+    string junk;
+    vector<int> accountIDs;
+    vector<int> customerIDs;
+    vector<long long> balances;
+    map<int, vector<Transaction>> histories;
+    ifstream in(filePath);
+    if (!in.is_open()) {
+        throw runtime_error("Error opening file for reading.");
+    }
+    string line;
+    int lineNo = 0;
+    while (getline(in, line)) {
+        lineNo++;
+        if (line.empty()) {
+            continue;
+        }
+        istringstream iss(line);
+        string type;
+        iss >> type;
+        if (type == "COUNTERS") {
+            iss >> std::ws;
+            iss >> nextCustomerID >> nextAccountID >> nextTransactionID;
+            if (iss.fail()) {
+                throw runtime_error("LineNo: " + to_string(lineNo) + "Error reading from file.");
+            }
+            if (iss >> junk) {
+                throw runtime_error("LineNo: " + to_string(lineNo) + "Junk on line.");
+            }
 
-// out.close();
+            if (counterExists == true) {
+                throw runtime_error("Duplicate counters.");
+            }
+            counterExists = true;
+        }
+        else if (type == "CUSTOMER") {
+
+        }
+        else if (type == "ACCOUNT") {
+
+        }
+        else if (type == "TRANSACTION") {
+
+        }
+        else {
+            throw runtime_error("Invalid fileLine on lineNo: " + to_string(lineNo) + "\nLine message: "+ line);
+        }
+    }
+}
 // COUNTERS nextCustomerID nextAccountID nextTransactionID
 // CUSTOMER id pin име-до-края-на-реда
 // ACCOUNT accountID customerID balance
