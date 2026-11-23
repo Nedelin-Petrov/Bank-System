@@ -17,6 +17,8 @@ add_executable(BankSystem main.cpp
         BankSystem.h
         Utils.cpp
         Utils.h
+        Menu.cpp
+        Menu.h
 )
 
 target_compile_options(BankSystem PRIVATE

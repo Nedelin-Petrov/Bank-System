@@ -1,10 +1,12 @@
 #include <iostream>
 #include <string>
+#include "BankSystem.h"
+#include "Menu.h"
 
 using namespace std;
 
 int main() {
-    printf("This is a test\n Hello World!\n");
-    printf("This is another test test test\n Hello World!\n");
-    return 0;
+    BankSystem bank({}, {}, 1, 1, 1, "bank_data.txt"); bank.load();
+    Menu menu(bank);
+    menu.run();
 }
