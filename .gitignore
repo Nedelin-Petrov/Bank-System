@@ -18,3 +18,7 @@ out/
 *.a
 *.pdb
 *.ilk
+
+# sensetiva data
+bank_data.txt
+*.tmp

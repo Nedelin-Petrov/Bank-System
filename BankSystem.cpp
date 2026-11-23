@@ -7,10 +7,12 @@
 #include <sstream>
 #include <filesystem>
 #include <map>
+#include <algorithm>
 #include "Transaction.h"
 #include "Customer.h"
 #include "Account.h"
 #include "Utils.h"
+
 using namespace std;
 
 BankSystem::BankSystem(const vector<Customer>& customers,const vector<Account>& accounts, int nextCustomerID, int nextAccountID, int nextTransactionID) : nextCustomerID(0), nextAccountID(0), nextTransactionID(0) {
@@ -188,6 +190,7 @@ int BankSystem::registerCustomer(const std::string &name, const std::string &PIN
     customers.push_back(c);
     int resultID = c.getID();
     nextCustomerID++;
+    save();
     return resultID;
 }
 int BankSystem::takeTransactionId() {
@@ -208,6 +211,7 @@ int BankSystem::openAccount(int customerID) {
     accounts.push_back(a);
     int resultID = a.getAccountID();
     nextAccountID++;
+    save();
     return resultID;
 }
 vector<int> BankSystem::getAccountIds(int customerId) const {
@@ -235,11 +239,13 @@ void BankSystem::deposit(int customerId, int accountId, long long amount) {
     Account& a = *findAccount(accountId);
     checkOwnership(a, customerId);
     a.deposit(amount,takeTransactionId());
+    save();
 }
 void BankSystem::withdraw(int customerId, int accountId, long long amount) {
     Account& a = *findAccount(accountId);
     checkOwnership(a, customerId);
     a.withdraw(amount,takeTransactionId());
+    save();
 }
 void BankSystem::transfer(int customerId, int fromAccountId, int toAccountId, long long amount) {
     if (fromAccountId != toAccountId) {
@@ -257,6 +263,7 @@ void BankSystem::transfer(int customerId, int fromAccountId, int toAccountId, lo
             aTo = backupTo;
             throw;
         }
+        save();
     }
     else {
         throw runtime_error("Can't transfer to self");
@@ -292,6 +299,7 @@ void BankSystem::load() {
         return;
     }
     vector<Customer> loadedCustomers;
+    vector<Account> loadedAccounts;
     int nextCustomerID = 0;
     int nextAccountID = 0;
     int nextTransactionID = 0;
@@ -316,44 +324,92 @@ void BankSystem::load() {
         string type;
         iss >> type;
         if (type == "COUNTERS") {
-            iss >> std::ws;
             iss >> nextCustomerID >> nextAccountID >> nextTransactionID;
             if (iss.fail()) {
-                throw runtime_error("LineNo: " + to_string(lineNo) + "Error reading from file.");
+                throw runtime_error("LineNo: " + to_string(lineNo) + " Error reading from file.");
             }
             if (iss >> junk) {
-                throw runtime_error("LineNo: " + to_string(lineNo) + "Junk on line.");
+                throw runtime_error("LineNo: " + to_string(lineNo) + " Junk on line.");
             }
 
             if (counterExists == true) {
-                throw runtime_error("Duplicate counters.");
+                throw runtime_error("LineNo: "+to_string(lineNo)+" Duplicate counters.");
             }
             counterExists = true;
         }
         else if (type == "CUSTOMER") {
-
+            int id;
+            string pin, name;
+            iss >> id >> pin >> std::ws;
+            getline(iss, name);
+            if (iss.fail()) {
+                throw runtime_error("LineNo: " + to_string(lineNo) + " Error reading from file.");
+            }
+            if (iss >> junk) {
+                throw runtime_error("LineNo: " + to_string(lineNo) + " Junk on line.");
+            }
+            try {
+            loadedCustomers.push_back(Customer(id,name,pin));
+            } catch (const exception& e) {
+                throw runtime_error("Line " + to_string(lineNo) + ": " + e.what());
+            }
         }
         else if (type == "ACCOUNT") {
-
+            int accountID, customerID;
+            long long balance;
+            iss >> accountID >> customerID >> balance;
+            if (iss.fail()) {
+                throw runtime_error("LineNo: " + to_string(lineNo) + " Error reading from file.");
+            }
+            if (iss >> junk) {
+                throw runtime_error("LineNo: " + to_string(lineNo) + " Junk on line.");
+            }
+            accountIDs.push_back(accountID);
+            customerIDs.push_back(customerID);
+            balances.push_back(balance);
         }
         else if (type == "TRANSACTION") {
-
+            int accountID, transactionID, otherAccountID;
+            string transcationType;
+            long long amount;
+            iss >> accountID >> transactionID >> transcationType >> amount >> otherAccountID;
+            if (iss.fail()) {
+                throw runtime_error("LineNo: " + to_string(lineNo) + " Error reading from file.");
+            }
+            if (iss >> junk) {
+                throw runtime_error("LineNo: " + to_string(lineNo) + " Junk on line.");
+            }
+            try {
+            Transaction t = Transaction(transactionID, Utils::parseTransactionType(transcationType),amount, otherAccountID);
+            histories[accountID].push_back(move(t));
+            }
+            catch (const exception& e) {
+                throw runtime_error("Line " + to_string(lineNo) + ": " + e.what());
+            }
         }
         else {
             throw runtime_error("Invalid fileLine on lineNo: " + to_string(lineNo) + "\nLine message: "+ line);
         }
     }
+    if (!counterExists) {
+        if (!loadedCustomers.empty() || !accountIDs.empty() || !histories.empty()) {
+            throw runtime_error("Corrupted file: missing COUNTERS line.");
+        }
+        return;
+    }
+    for (const auto& pair : histories) {
+        if (find(accountIDs.begin(), accountIDs.end(), pair.first) == accountIDs.end()) {
+            throw runtime_error("Corrupted file: transaction for unknown account " + to_string(pair.first) + ".");
+        }
+    }
+    try {
+        for (size_t i = 0; i < accountIDs.size(); i++) {
+            loadedAccounts.push_back( Account(accountIDs[i], customerIDs[i], balances[i], histories[accountIDs[i]]) );
+        }
+
+        BankSystem tmp(loadedCustomers, loadedAccounts, nextCustomerID, nextAccountID, nextTransactionID, filePath);
+        *this = tmp;
+    } catch (const exception& e) {
+        throw runtime_error(string("Corrupted file: ") + e.what());
+    }
 }
-// COUNTERS nextCustomerID nextAccountID nextTransactionID
-// CUSTOMER id pin име-до-края-на-реда
-// ACCOUNT accountID customerID balance
-// TRANSACTION accountID transactionID ТИП amount otherAccountID
-// COUNTERS 3 3 5
-// CUSTOMER 1 1234 Ivan Petrov
-// CUSTOMER 2 4321 Maria
-// ACCOUNT 1 1 5000
-// ACCOUNT 2 2 3000
-// TRANSACTION 1 1 DEPOSIT 10000 0
-// TRANSACTION 1 2 WITHDRAW 2000 0
-// TRANSACTION 1 3 TRANSFER_OUT 3000 2
-// TRANSACTION 2 4 TRANSFER_IN 3000 1
