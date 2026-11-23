@@ -15,17 +15,17 @@ void Menu::run() {
         std::cin >> choice;
         switch (choice) {
             case '1': {
-
+                registerFlow();
+                break;
             }
-            break;
             case '2': {
 
-            }
             break;
+            }
             case '0': {
 
-            }
             break;
+            }
             default:
                 throw std::invalid_argument("Непозната опция");
         }
@@ -73,4 +73,8 @@ void Menu::choiceLogicRegisterText() {
     std::cout<<"0. Quit\n";
     std::cout<<"Choose action: ";
 }
-
+void Menu::registerFlow() {
+    std::string name = readLine("Enter name: ");
+    std::string PIN = readLine("Enter PIN: ");
+    int id = bank.registerCustomer(name, PIN);
+}

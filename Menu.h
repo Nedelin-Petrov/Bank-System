@@ -11,4 +11,6 @@ class Menu {
         Menu(BankSystem& bank);
         void run();
         void choiceLogicRegisterText();
+        void registerFlow();
+        void loginFlow();
 };
