@@ -13,4 +13,5 @@ class Menu {
         void choiceLogicRegisterText();
         void registerFlow();
         void loginFlow();
+        void customerMenu(int customerID);
 };

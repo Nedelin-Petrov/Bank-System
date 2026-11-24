@@ -11,23 +11,22 @@ void Menu::run() {
     std::cout << "----------------------\n";
     while (true) {
         choiceLogicRegisterText();
-        char choice;
-        std::cin >> choice;
+        int choice = readInt("");
         switch (choice) {
-            case '1': {
+            case 1: {
                 registerFlow();
                 break;
             }
-            case '2': {
-
+            case 2: {
+                loginFlow();
+                break;
             break;
             }
-            case '0': {
-
-            break;
+            case 0: {
+            return;
             }
             default:
-                throw std::invalid_argument("Непозната опция");
+                std::cout << "Unknown choice.\n";
         }
     }
 
@@ -74,7 +73,48 @@ void Menu::choiceLogicRegisterText() {
     std::cout<<"Choose action: ";
 }
 void Menu::registerFlow() {
-    std::string name = readLine("Enter name: ");
-    std::string PIN = readLine("Enter PIN: ");
-    int id = bank.registerCustomer(name, PIN);
+    std::string name;
+    std::string pin;
+    name = readLine("Enter your name: ");
+    pin  = readLine("Enter your pin: ");
+    try {
+        int id = bank.registerCustomer(name, pin);
+        std::cout << "Registered! Your ID is " << id << "\n";
+        return;
+    }
+    catch (const std::exception& e) {
+        std::cout << "Error: " << e.what() << "\n";
+        return;
+    }
+
+}
+
+void Menu::loginFlow() {
+    int customerID;
+    std::string pin;
+    customerID = readInt("Enter your ID: ");
+    pin = readLine("Enter your pin: ");
+    try {
+        int id = bank.login(customerID, pin);
+        return;
+    }
+    catch (const std::exception& e) {
+        std::cout << "Error: " << e.what() << "\n";
+        return;
+    }
+}
+void Menu::customerMenu(int customerID) {
+    int choice;
+    choice = readInt("Enter your choice: ");
+    switch (choice) {
+        case 1: {
+            break;
+        }
+        case 2: {
+            break;
+        }
+        case 0: {
+            return;
+        }
+    }
 }
